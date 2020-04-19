@@ -1685,14 +1685,15 @@
           info_website: $('#org_url').val(),
           concern_points: out
         }
-
+        /* // It's better to wrap how fetch.post is called. 
+           // But fetch doesn't quite work.
         async function postData(url = '', data = {}) {
           // Default options are marked with *
           const response = await fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-            credentials: 'same-origin', // include, *same-origin, omit
+            // credentials: 'same-origin', // include, *same-origin, omit
             headers: {
               'Content-Type': 'application/json'
               // 'Content-Type': 'application/x-www-form-urlencoded',
@@ -1703,6 +1704,7 @@
           })
           return response.json() // parses JSON response into native JavaScript objects
         }
+        */
 
         if (has_backend) {
           // POST safe-paths.json data to the backend
@@ -1722,15 +1724,33 @@
 
           const url = '/safeplaces/safe_paths'
 
+          var req = $.ajax({
+            url,
+            type: 'POST',
+            // data: JSON.stringify(payload),
+            data: complete,
+            // Fetch the stored token from localStorage and set in the header
+            headers: {
+              Authorization: localStorage.getItem('token')
+            }
+          })
+
+          req.done(function(content) {
+            $('#progress').text('Result:' + content)
+            setTimeout(function() {
+              $('#saving-panel').hide()
+            }, 1000)
+          })
+
           //   fetch(url, options)
-          postData(url, complete)
-            .then(response => response.json())
-            .then(function(content) {
-              $('#progress').text('Result:' + content)
-              setTimeout(function() {
-                $('#saving-panel').hide()
-              }, 1000)
-            })
+          //   postData(url, complete)
+          //     .then(response => response.json())
+          //     .then(function(content) {
+          //       $('#progress').text('Result:' + content)
+          //       setTimeout(function() {
+          //         $('#saving-panel').hide()
+          //       }, 1000)
+          //     })
         } else {
           // Simple save to safe-paths.json
           let text = JSON.stringify(complete)
